@@ -1,3 +1,5 @@
+//admin settings page/screen for app (admin specific notifications)
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 

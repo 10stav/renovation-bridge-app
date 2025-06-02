@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const { sendContractorNotification } = require('../services/emailService');
+const { getActiveContractors } = require('../data/contractors');
 
-// GHL Webhook endpoint - UPDATED FOR GHL FORMAT
+// GHL Webhook endpoint - UPDATED WITH EMAIL NOTIFICATIONS
 router.post('/ghl-opportunity', async (req, res) => {
   console.log('🚨 WEBHOOK HIT! ANY REQUEST RECEIVED!');
   console.log('📋 Headers:', req.headers);
   console.log('📋 Body:', req.body);
-  console.log('📋 Method:', req.method);
-  console.log('📋 URL:', req.url);
   
   console.log('🎯 GHL Webhook received!');
   console.log('📋 Webhook data:', JSON.stringify(req.body, null, 2));
@@ -35,7 +35,7 @@ router.post('/ghl-opportunity', async (req, res) => {
     console.log('📧 Email:', contactData.contactEmail);
     console.log('📱 Phone:', contactData.contactPhone);
     
-    // Notify contractors (your automation logic)
+    // Send email notifications to all contractors
     await notifyContractors(contactData);
     
     res.status(200).json({ 
@@ -50,21 +50,32 @@ router.post('/ghl-opportunity', async (req, res) => {
   }
 });
 
-// Contractor notification function
+// Updated contractor notification function with real emails
 async function notifyContractors(contactData) {
   console.log('📢 CONTRACTOR NOTIFICATION TRIGGERED!');
   console.log('🏗️ Project Budget:', contactData.projectBudget);
   console.log('👤 Customer:', contactData.contactName);
   console.log('📧 Email:', contactData.contactEmail);
   console.log('📱 Phone:', contactData.contactPhone);
-  console.log('📝 Description:', contactData.projectDescription);
-  console.log('⏰ Timeline:', contactData.projectTimeline);
   
-  // TODO: 
-  // 1. Store contact data in database
-  // 2. Send notifications to contractors
-  // 3. Create booking interface
-  // 4. Trigger QuickBooks invoice ($350 to contractor)
+  // Get all active contractors
+  const contractors = getActiveContractors();
+  console.log(`📬 Sending emails to ${contractors.length} contractors...`);
+  
+  // Send email to each contractor
+  const emailPromises = contractors.map(async (contractor) => {
+    console.log(`📧 Sending email to: ${contractor.name} (${contractor.email})`);
+    return await sendContractorNotification(contractor.email, contactData);
+  });
+  
+  // Wait for all emails to send
+  const results = await Promise.all(emailPromises);
+  
+  // Log results
+  const successful = results.filter(r => r.success).length;
+  const failed = results.filter(r => !r.success).length;
+  
+  console.log(`✅ Email notifications sent: ${successful} successful, ${failed} failed`);
 }
 
 // Test endpoints

@@ -1,3 +1,5 @@
+//admin dashboard page/screen for app
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
