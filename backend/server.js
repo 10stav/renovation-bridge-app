@@ -18,12 +18,13 @@ app.get('/', (req, res) => {
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/appointments', require('./routes/appointments'));
-app.use('/api/webhooks', require('./routes/webhooks')); // ← ADD THIS LINE
+app.use('/api/webhooks', require('./routes/webhooks'));
+app.use('/api/contractor', require('./routes/contractor')); // ← ADD THIS LINE
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.log('⚠️  MongoDB connection pending'));
+  .catch(err => console.log('⚠ MongoDB connection pending'));
 
 // Start server
 app.listen(PORT, () => {

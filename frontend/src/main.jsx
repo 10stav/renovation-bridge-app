@@ -34,34 +34,26 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/" element={<App />} />
           <Route path="/login" element={<Login />} />
 
-          {/* Admin Routes */}
-          <Route path="/admin">
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="homeowner-management" element={<AdminHomeownerManagement />} />
-            <Route path="homeowner-requests" element={<AdminHomeownerRequests />} />
-            <Route path="notifications" element={<AdminNotifications />} />
-            <Route path="settings" element={<AdminSettings />} />
-            
-            {/* Admin sub-routes for detailed views */}
-            <Route path="homeowner-profile/:id" element={<AdminHomeownerManagement />} />
-            <Route path="homeowner-projects/:id" element={<AdminHomeownerManagement />} />
-            <Route path="request-details/:id" element={<AdminHomeownerRequests />} />
-            <Route path="add-project/:id" element={<AdminHomeownerManagement />} />
-          </Route>
+          {/* Admin Routes - FLAT STRUCTURE */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/homeowner-management" element={<AdminHomeownerManagement />} />
+          <Route path="/admin/homeowner-requests" element={<AdminHomeownerRequests />} />
+          <Route path="/admin/notifications" element={<AdminNotifications />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/homeowner-profile/:id" element={<AdminHomeownerManagement />} />
+          <Route path="/admin/homeowner-projects/:id" element={<AdminHomeownerManagement />} />
+          <Route path="/admin/request-details/:id" element={<AdminHomeownerRequests />} />
+          <Route path="/admin/add-project/:id" element={<AdminHomeownerManagement />} />
 
-          {/* Contractor Routes */}
-          <Route path="/contractor">
-            <Route path="dashboard" element={<ContractorDashboard />} />
-            <Route path="available-jobs" element={<ContractorAvailableJobs />} />
-            <Route path="job-details/:id" element={<ContractorAppointmentDetails />} />
-            <Route path="job-accepted/:id" element={<ContractorAppointmentConfirmed />} />
-            <Route path="request-time" element={<ContractorRequestTime />} />
-            
-            {/* Legacy routes for compatibility */}
-            <Route path="appointments" element={<ContractorAvailableJobs />} />
-            <Route path="appointments/:id" element={<ContractorAppointmentDetails />} />
-            <Route path="confirmed" element={<ContractorAppointmentConfirmed />} />
-          </Route>
+          {/* Contractor Routes - FLAT STRUCTURE */}
+          <Route path="/contractor/dashboard" element={<ContractorDashboard />} />
+          <Route path="/contractor/available-jobs" element={<ContractorAvailableJobs />} />
+          <Route path="/contractor/job-details/:id" element={<ContractorAppointmentDetails />} />
+          <Route path="/contractor/job-accepted/:id" element={<ContractorAppointmentConfirmed />} />
+          <Route path="/contractor/request-time" element={<ContractorRequestTime />} />
+          <Route path="/contractor/appointments" element={<ContractorAvailableJobs />} />
+          <Route path="/contractor/appointments/:id" element={<ContractorAppointmentDetails />} />
+          <Route path="/contractor/confirmed" element={<ContractorAppointmentConfirmed />} />
 
           {/* Legacy Routes for Backward Compatibility */}
           <Route path="/dashboard" element={<AdminDashboard />} />
