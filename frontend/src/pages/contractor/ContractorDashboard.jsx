@@ -1,12 +1,44 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function ContractorDashboard() {
   const navigate = useNavigate();
   
+  // State for real job count
+  const [jobCount, setJobCount] = useState(0);
+  const [loadingCount, setLoadingCount] = useState(true);
+
+  // Fetch real job count from backend
+  useEffect(() => {
+    fetchJobCount();
+  }, []);
+
+  const fetchJobCount = async () => {
+    try {
+      setLoadingCount(true);
+      console.log('📊 Fetching real job count from backend...');
+      
+      const response = await fetch('http://localhost:3001/api/jobs-count');
+      const data = await response.json();
+      
+      if (data.success) {
+        setJobCount(data.count);
+        console.log('✅ Dashboard loaded job count:', data.count);
+      } else {
+        console.error('❌ Failed to fetch job count');
+        setJobCount(0);
+      }
+    } catch (err) {
+      console.error('❌ Error fetching job count:', err);
+      setJobCount(0); // Default to 0 if error
+    } finally {
+      setLoadingCount(false);
+    }
+  };
+  
   const testNavigation = () => {
     console.log('🔥 Available Appointments Button clicked!');
-    alert('Navigation test - would go to available jobs');
+    console.log('🎯 Current job count:', jobCount);
     navigate('/contractor/available-jobs');
   };
 
@@ -42,7 +74,9 @@ function ContractorDashboard() {
             className="flex-1 bg-white bg-opacity-20 backdrop-blur-sm rounded-2xl p-4 text-center hover:bg-opacity-30 transition-all duration-200 cursor-pointer"
           >
             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-white font-bold text-xl">9</span>
+              <span className="text-white font-bold text-xl">
+                {loadingCount ? '...' : jobCount}
+              </span>
             </div>
             <div className="text-xs font-medium">AVAILABLE</div>
             <div className="text-xs font-medium">APPOINTMENTS</div>
