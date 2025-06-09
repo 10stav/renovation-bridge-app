@@ -53,22 +53,61 @@ router.post('/ghl-opportunity', async (req, res) => {
   }
 });
 
-// 🆕 NEW FUNCTION: Store available job in database
+// 🆕 UPDATED FUNCTION: Store available job with reactivation logic
 async function storeAvailableJob(contactData, originalWebhookData) {
   try {
     console.log('💾 Storing available job in database...');
     
-    // Check if job already exists for this customer
+    // Check if job already exists for this customer (any status)
     const existingJob = await AvailableJob.findOne({ 
       customerId: contactData.contactId 
     });
     
-    if (existingJob && existingJob.status === 'available') {
-      console.log('ℹ Job already exists for this customer:', contactData.contactName);
-      return existingJob;
+    if (existingJob) {
+      if (existingJob.status === 'available') {
+        console.log('ℹ Job already exists and is active for:', contactData.contactName);
+        return existingJob;
+      } else if (existingJob.status === 'removed') {
+        // 🔄 REACTIVATE REMOVED JOB
+        console.log('🔄 Reactivating removed job for:', contactData.contactName);
+        
+        const reactivatedJob = await AvailableJob.findOneAndUpdate(
+          { customerId: contactData.contactId },
+          { 
+            status: 'available',
+            customerName: contactData.contactName,
+            customerEmail: contactData.contactEmail,
+            customerPhone: contactData.contactPhone,
+            projectBudget: contactData.projectBudget || existingJob.projectBudget,
+            projectDescription: contactData.projectDescription || existingJob.projectDescription,
+            projectTimeline: contactData.projectTimeline || existingJob.projectTimeline,
+            location: {
+              name: contactData.location?.name || existingJob.location?.name || '',
+              address: contactData.location?.address || existingJob.location?.address || '',
+              city: contactData.location?.city || existingJob.location?.city || '',
+              state: contactData.location?.state || existingJob.location?.state || '',
+              fullAddress: contactData.location?.fullAddress || existingJob.location?.fullAddress || 'Location TBD'
+            },
+            updatedAt: new Date(),
+            ghlData: originalWebhookData
+          },
+          { new: true }
+        );
+        
+        console.log('✅ Job reactivated successfully:', reactivatedJob._id);
+        console.log('📋 Updated job details:', {
+          customer: reactivatedJob.customerName,
+          budget: reactivatedJob.projectBudget,
+          location: reactivatedJob.location.fullAddress
+        });
+        
+        return reactivatedJob;
+      }
     }
 
-    // Create new available job
+    // Create new available job (no existing job found)
+    console.log('🆕 Creating new job for:', contactData.contactName);
+    
     const availableJob = new AvailableJob({
       customerId: contactData.contactId,
       customerName: contactData.contactName,
@@ -89,7 +128,7 @@ async function storeAvailableJob(contactData, originalWebhookData) {
     });
 
     const savedJob = await availableJob.save();
-    console.log('✅ Available job stored successfully:', savedJob._id);
+    console.log('✅ New available job created successfully:', savedJob._id);
     console.log('📋 Job details:', {
       customer: savedJob.customerName,
       budget: savedJob.projectBudget,
@@ -142,4 +181,3 @@ router.get('/ghl-opportunity', (req, res) => {
 });
 
 module.exports = router;
-
